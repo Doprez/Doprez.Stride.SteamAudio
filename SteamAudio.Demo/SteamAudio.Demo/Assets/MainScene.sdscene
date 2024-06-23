@@ -1,0 +1,116 @@
+!SceneAsset
+Id: ec337d03-5611-4c0a-ad17-b5f8bd941a38
+SerializedVersion: {Stride: 3.1.0.1}
+Tags: []
+ChildrenIds: []
+Offset: {X: 0.0, Y: 0.0, Z: 0.0}
+Hierarchy:
+    RootParts:
+        - ref!! 8c96043e-cf5b-42a3-b50e-c92335dffa56
+        - ref!! 83a2ea93-5a5b-4879-97ea-42c92bcba604
+        - ref!! 6bb7f704-5c31-4ab3-b6d1-b6c2c37f8678
+        - ref!! a1a1dc57-0943-47d5-98ce-477222904741
+        - ref!! 302eb829-a831-4d6b-96f6-d7edf7aef542
+    Parts:
+        -   Entity:
+                Id: 302eb829-a831-4d6b-96f6-d7edf7aef542
+                Name: Sphere
+                Components:
+                    f3c94ffe92097a9cdb4e1ee14366f1b3: !TransformComponent
+                        Id: a9054159-4297-4253-982a-1b1254c09f4e
+                        Position: {X: 0.0, Y: 0.5, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    1e055d16179ca0f036fd98ff0841ec19: !ModelComponent
+                        Id: 408448ef-bb43-485a-80b8-6a712ad4272d
+                        Model: f91abbd6-39d0-4637-aacd-14801a1fc646:Sphere
+                        Materials: {}
+                    a3a668ecb01e39cfbe6d0283cbefbae0: !Doprez.Stride.SteamAudio.SteamAudioEmitter,Doprez.Stride.SteamAudio
+                        Id: 30f0f277-7fcf-4d69-9fe7-c92873e1d89f
+                        RawFileSource: 82765b75-a664-4883-ac9e-ce9d4f2bda06:Quincas Moreira - Moskito
+                        SampleRate: 44100
+                        FrameSize: 4096
+                        Volume: 1.0
+        -   Entity:
+                Id: 6bb7f704-5c31-4ab3-b6d1-b6c2c37f8678
+                Name: Skybox
+                Components:
+                    f96b729b0d43a27f30f40d342b244851: !TransformComponent
+                        Id: 0e2cff90-c795-4687-bd61-dbd15bb60949
+                        Position: {X: 0.0, Y: 2.0, Z: -2.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    a0a1b7e8ec4f07322eccb4ac70cc18e6: !BackgroundComponent
+                        Id: 76736ed8-906f-4272-848a-4b0fa207d2cd
+                        Texture: c07c8766-0998-4b27-b014-5ad2f172b1ed:Skybox texture
+                    63cadad31dc3edd0e4a3f35bd97cc49d: !LightComponent
+                        Id: 9b7817ea-56da-4671-9614-d2bcd289921a
+                        Type: !LightSkybox
+                            Skybox: b6575b32-eb03-40e8-9724-d86ade8a3aa7:Skybox
+        -   Entity:
+                Id: 83a2ea93-5a5b-4879-97ea-42c92bcba604
+                Name: Directional light
+                Components:
+                    99fcc6cb50e71ab492f5e3e63a6fb14b: !TransformComponent
+                        Id: 2a037a0a-4e3b-4fa8-be97-12257e1c23ff
+                        Position: {X: 0.0, Y: 2.0, Z: 0.0}
+                        Rotation: {X: 1.131334E-08, Y: -0.9659258, Z: -0.25881904, W: -4.222196E-08}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    f906687bfd6e92e67d1e51d1a99b0073: !LightComponent
+                        Id: c1054dce-98e4-496e-bce3-f71d1f7aeaac
+                        Type: !LightDirectional
+                            Color: !ColorRgbProvider
+                                Value: {R: 1.0, G: 1.0, B: 1.0}
+                            Shadow: !LightDirectionalShadowMap
+                                Enabled: true
+                                Filter: !LightShadowMapFilterTypePcf
+                                    FilterSize: Filter5x5
+                                Size: Large
+                                DepthRange: {}
+                                PartitionMode: !LightDirectionalShadowMap.PartitionLogarithmic {}
+                                ComputeTransmittance: false
+                                BiasParameters: {}
+                        Intensity: 20.0
+        -   Entity:
+                Id: 8c96043e-cf5b-42a3-b50e-c92335dffa56
+                Name: Camera
+                Components:
+                    717f498b3c6319ba79988c57161e2904: !TransformComponent
+                        Id: c6fc6e32-55f8-4d8a-b96a-a4acffcc8ab8
+                        Position: {X: 2.6, Y: 0.6, Z: -1.0}
+                        Rotation: {X: 0.0, Y: 0.82903755, Z: 0.0, W: 0.5591929}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    549635e91570563271b30cf9abd8d8cf: !CameraComponent
+                        Id: 68c95bc6-5e60-49f0-be3b-3e996540b280
+                        Name: null
+                        Projection: Perspective
+                        Slot: aff5123e-1c04-43b8-bb3c-fb80aeac134e
+                    03fefb3e1a12f8c2d8cb314aa899c307: !SteamAudio.Demo.BasicCameraController,SteamAudio.Demo
+                        Id: e2688162-f0ba-4413-86cd-ac82ad450be8
+                        Gamepad: false
+                        KeyboardMovementSpeed: {X: 5.0, Y: 5.0, Z: 5.0}
+                        TouchMovementSpeed: {X: 0.7, Y: 0.7, Z: 0.3}
+                        SpeedFactor: 5.0
+                        KeyboardRotationSpeed: {X: 3.0, Y: 3.0}
+                        MouseRotationSpeed: {X: 1.0, Y: 1.0}
+                        TouchRotationSpeed: {X: 1.0, Y: 0.7}
+                    e4a83c0b69b7ebc1600f83d81187b53e: !Doprez.Stride.SteamAudio.SteamAudioListener,Doprez.Stride.SteamAudio
+                        Id: 656b57ab-3fd8-403c-b999-2f2e22d48be5
+        -   Entity:
+                Id: a1a1dc57-0943-47d5-98ce-477222904741
+                Name: Ground
+                Components:
+                    a629e924d9a6e89359545dd73becb941: !TransformComponent
+                        Id: 3098c59d-fab7-4af9-833c-09c13f224aa8
+                        Position: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    36c3a5b58c1237a4eeefa220056ac4a2: !ModelComponent
+                        Id: 5c6325ba-bcf5-4967-864e-4aeeb288eb13
+                        Model: 163e7759-f4d1-4a70-88fb-eeec5784e08c:Ground
+                        Materials: {}
