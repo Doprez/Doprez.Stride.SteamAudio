@@ -6,6 +6,7 @@ using Stride.Engine;
 using Stride.Games;
 using Stride.Profiling;
 using System.Runtime.CompilerServices;
+using static SteamAudio.IPL;
 
 namespace Doprez.Stride.SteamAudio.Processors;
 public unsafe class SteamAudioProcessor : EntityProcessor<SteamAudioEmitter>
@@ -18,9 +19,18 @@ public unsafe class SteamAudioProcessor : EntityProcessor<SteamAudioEmitter>
 	private OpenAlConfiguration _openAlConfiguration;
 	private SteamAudioListenerProcessor _listenerProcessor;
 
+	private IPL.Context _iplContext;
+
 	public SteamAudioProcessor()
 	{
 		Order = 80001;
+
+		// Steam Audio Initialization
+		var contextSettings = new ContextSettings
+		{
+			Version = IPL.Version,
+		};
+		ContextCreate(in contextSettings, out _iplContext);
 	}
 
 	public override void Update(GameTime time)
@@ -45,18 +55,19 @@ public unsafe class SteamAudioProcessor : EntityProcessor<SteamAudioEmitter>
 	protected override void OnSystemRemove()
 	{
 		_openAlConfiguration.Dispose();
+		ContextRelease(ref _iplContext);
 	}
 
 	protected override void OnEntityComponentAdding(Entity entity, [NotNull] SteamAudioEmitter component, [NotNull] SteamAudioEmitter data)
 	{
 		Emitters.Add(component);
-		component.Initialize();
+		component.Initialize(_iplContext);
 	}
 
 	protected override void OnEntityComponentRemoved(Entity entity, [NotNull] SteamAudioEmitter component, [NotNull] SteamAudioEmitter data)
 	{
 		Emitters.Remove(component);
-		component.Dispose();
+		component.Dispose(_iplContext);
 	}
 
 	private void PlayAudio(SteamAudioEmitter emitter)
@@ -109,7 +120,7 @@ public unsafe class SteamAudioProcessor : EntityProcessor<SteamAudioEmitter>
 		var listenerForward = Listener.Entity.Transform.WorldMatrix.Forward;
 		var listenerUp = Listener.Entity.Transform.WorldMatrix.Up;
 
-		var iplDir = IPL.CalculateRelativeDirection(emitter.IplContext, emitterPosition.ToIPL(), listenerPosition.ToIPL(), listenerForward.ToIPL(), listenerUp.ToIPL());
+		var iplDir = IPL.CalculateRelativeDirection(_iplContext, emitterPosition.ToIPL(), listenerPosition.ToIPL(), listenerForward.ToIPL(), listenerUp.ToIPL());
 
 		float* inputBufferChannelPtr = ((float**)emitter.IplInputBuffer.Data)[0];
 		var inputBufferByteSpan = new Span<byte>(inputBufferChannelPtr, emitter.FrameSizeInBytes);
@@ -135,19 +146,19 @@ public unsafe class SteamAudioProcessor : EntityProcessor<SteamAudioEmitter>
 		IPL.BinauralEffectApply(emitter.IplBinauralEffect, ref binauralEffectParams, ref emitter.IplInputBuffer, ref emitter.IplOutputBuffer);
 
 		// Apply distance attenuation
-		var volume = IPL.DistanceAttenuationCalculate(emitter.IplContext, emitterPosition.ToIPL(), listenerPosition.ToIPL(), emitter.IplDistanceAttenuationModel);
+		var volume = IPL.DistanceAttenuationCalculate(_iplContext, emitterPosition.ToIPL(), listenerPosition.ToIPL(), emitter.IplDistanceAttenuationModel);
 		var directEffectParams = new IPL.DirectEffectParams
 		{
 			Flags = IPL.DirectEffectFlags.ApplyDistanceAttenuation,
 			DistanceAttenuation = volume,
 		};
-		IPL.DirectEffectCreate(emitter.IplContext, emitter.IplAudioSettings, emitter.DirectEffectSettings, out var directEffect);
+		IPL.DirectEffectCreate(_iplContext, emitter.IplAudioSettings, emitter.DirectEffectSettings, out var directEffect);
 		// once the output buffer is filled, we can apply the direct effect using it as the input for future effects.
 		IPL.DirectEffectApply(directEffect, ref directEffectParams, ref emitter.IplOutputBuffer, ref emitter.IplOutputBuffer);
 
-		IPL.AudioBufferInterleave(emitter.IplContext, in emitter.IplOutputBuffer, in Unsafe.AsRef<float>((void*)emitter.TempInterlacingBuffer));
+		IPL.AudioBufferInterleave(_iplContext, in emitter.IplOutputBuffer, in Unsafe.AsRef<float>((void*)emitter.InterlacingBuffer));
 
-		_openAlConfiguration.Al.BufferData(bufferId, (BufferFormat)FloatBufferFormat.Stereo, (void*)emitter.TempInterlacingBuffer, emitter.FrameSizeInBytes * 2, emitter.IplAudioSettings.SamplingRate);
+		_openAlConfiguration.Al.BufferData(bufferId, (BufferFormat)FloatBufferFormat.Stereo, (void*)emitter.InterlacingBuffer, emitter.FrameSizeInBytes * 2, emitter.IplAudioSettings.SamplingRate);
 
 		CheckALErrors();
 	}

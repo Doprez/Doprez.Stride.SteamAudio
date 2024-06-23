@@ -13,7 +13,7 @@ namespace Doprez.Stride.SteamAudio;
 [Display("Steam Audio Emitter")]
 [ComponentCategory("Audio")]
 [DefaultEntityComponentProcessor(typeof(SteamAudioProcessor), ExecutionMode = ExecutionMode.Runtime)]
-public class SteamAudioEmitter : StartupScript, IDisposable
+public class SteamAudioEmitter : StartupScript
 {
 
 	public UrlReference RawFileSource { get; set; }
@@ -21,6 +21,7 @@ public class SteamAudioEmitter : StartupScript, IDisposable
 	public int SampleRate { get; set; } = 44100;
 	public int FrameSize { get; set; } = 4096;
 	public float Volume { get; set; } = 1.0f;
+
 
 	[DataMemberIgnore]
 	public TimeSpan CurrentStreamPosition { get; set; }
@@ -31,10 +32,8 @@ public class SteamAudioEmitter : StartupScript, IDisposable
 	[DataMemberIgnore]
 	public Stream AudioStream;
 	[DataMemberIgnore]
-	public IntPtr TempInterlacingBuffer = IntPtr.Zero;
+	public IntPtr InterlacingBuffer = IntPtr.Zero;
 
-	[DataMemberIgnore]
-	public Context IplContext;
 	[DataMemberIgnore]
 	public Hrtf IplHrtf;
 	[DataMemberIgnore]
@@ -60,15 +59,15 @@ public class SteamAudioEmitter : StartupScript, IDisposable
 		AudioStream = OpenStream();
 	}
 
-	public void Initialize()
+	public void Initialize(Context iplContext)
 	{
 		if (RawFileSource == null)
 		{
-			throw new InvalidOperationException("RawFileSource is not set");
+			throw new InvalidOperationException($"{nameof(RawFileSource)} is not set");
 		}
 
-		TempInterlacingBuffer = Marshal.AllocHGlobal(FrameSizeInBytes * 2);
-		PrepareSteamAudio();
+		InterlacingBuffer = Marshal.AllocHGlobal(FrameSizeInBytes * 2);
+		PrepareSteamAudio(iplContext);
 	}
 
 	public Stream OpenStream()
@@ -77,16 +76,13 @@ public class SteamAudioEmitter : StartupScript, IDisposable
 		return stream;
 	}
 
-	private void PrepareSteamAudio()
+	public void ReadAudioData()
 	{
-		// Steam Audio Initialization
-		var contextSettings = new ContextSettings
-		{
-			Version = IPL.Version,
-		};
 
-		ContextCreate(in contextSettings, out IplContext);
+	}
 
+	private void PrepareSteamAudio(Context iplContext)
+	{
 		IplAudioSettings = new AudioSettings
 		{
 			SamplingRate = SampleRate,
@@ -101,7 +97,7 @@ public class SteamAudioEmitter : StartupScript, IDisposable
 			NormType = HrtfNormType.None
 		};
 
-		HrtfCreate(IplContext, in IplAudioSettings, in hrtfSettings, out IplHrtf);
+		HrtfCreate(iplContext, in IplAudioSettings, in hrtfSettings, out IplHrtf);
 
 		// Binaural Effect
 		var binauralEffectSettings = new BinauralEffectSettings
@@ -109,12 +105,12 @@ public class SteamAudioEmitter : StartupScript, IDisposable
 			Hrtf = IplHrtf
 		};
 
-		BinauralEffectCreate(IplContext, in IplAudioSettings, in binauralEffectSettings, out IplBinauralEffect);
+		BinauralEffectCreate(iplContext, in IplAudioSettings, in binauralEffectSettings, out IplBinauralEffect);
 
 		// Audio Buffers
 		// Input is mono, output is stereo.
-		AudioBufferAllocate(IplContext, 1, IplAudioSettings.FrameSize, ref IplInputBuffer);
-		AudioBufferAllocate(IplContext, 2, IplAudioSettings.FrameSize, ref IplOutputBuffer);
+		AudioBufferAllocate(iplContext, 1, IplAudioSettings.FrameSize, ref IplInputBuffer);
+		AudioBufferAllocate(iplContext, 2, IplAudioSettings.FrameSize, ref IplOutputBuffer);
 
 		IplDistanceAttenuationModel = new DistanceAttenuationModel
 		{ 
@@ -128,14 +124,13 @@ public class SteamAudioEmitter : StartupScript, IDisposable
 		};
 	}
 
-	public void Dispose()
+	public void Dispose(Context iplContext)
 	{
-		Marshal.FreeHGlobal(TempInterlacingBuffer);
+		Marshal.FreeHGlobal(InterlacingBuffer);
 
-		AudioBufferFree(IplContext, ref IplInputBuffer);
-		AudioBufferFree(IplContext, ref IplOutputBuffer);
+		AudioBufferFree(iplContext, ref IplInputBuffer);
+		AudioBufferFree(iplContext, ref IplOutputBuffer);
 		BinauralEffectRelease(ref IplBinauralEffect);
 		HrtfRelease(ref IplHrtf);
-		ContextRelease(ref IplContext);
 	}
 }
