@@ -13,7 +13,7 @@ Currently this only works with RAW audio files. I would like to get others worki
 
 ![image](https://github.com/Doprez/Doprez.Stride.SteamAudio/assets/73259914/787571e6-0717-4fdb-80ed-821b578c5d20)
 
-4. create a listener attached to an entity (Only one listener is supported for now)
+4. create a listener attached to an entity
 
 ![image](https://github.com/Doprez/Doprez.Stride.SteamAudio/assets/73259914/5d17cc9e-3f32-4199-9e2e-8f472eb72a77)
 
