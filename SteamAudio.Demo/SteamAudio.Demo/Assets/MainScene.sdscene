@@ -11,6 +11,8 @@ Hierarchy:
         - ref!! 6bb7f704-5c31-4ab3-b6d1-b6c2c37f8678
         - ref!! a1a1dc57-0943-47d5-98ce-477222904741
         - ref!! 302eb829-a831-4d6b-96f6-d7edf7aef542
+        - ref!! 6b91d748-1252-4a99-9ebb-6ca195d87cf0
+        - ref!! 8143159b-1031-40f7-a8a7-60931d03ae6d
     Parts:
         -   Entity:
                 Id: 302eb829-a831-4d6b-96f6-d7edf7aef542
@@ -32,6 +34,27 @@ Hierarchy:
                         SampleRate: 44100
                         FrameSize: 4096
                         Volume: 1.0
+        -   Folder: null
+            Entity:
+                Id: 6b91d748-1252-4a99-9ebb-6ca195d87cf0
+                Name: Sphere
+                Components:
+                    f3c94ffe92097a9cdb4e1ee14366f1b3: !TransformComponent
+                        Id: d88ebc99-7a87-49a7-bce7-4e04bfc2b196
+                        Position: {X: 46.575928, Y: 0.5, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    1e055d16179ca0f036fd98ff0841ec19: !ModelComponent
+                        Id: 81acfb37-7a23-4e8d-a6e0-9c1c748215d1
+                        Model: f91abbd6-39d0-4637-aacd-14801a1fc646:Sphere
+                        Materials: {}
+                    a3a668ecb01e39cfbe6d0283cbefbae0: !Doprez.Stride.SteamAudio.SteamAudioEmitter,Doprez.Stride.SteamAudio
+                        Id: 1350140c-b1e4-45ba-98db-8c33702bbccf
+                        RawFileSource: 82765b75-a664-4883-ac9e-ce9d4f2bda06:Quincas Moreira - Moskito
+                        SampleRate: 44100
+                        FrameSize: 4096
+                        Volume: 1.0
         -   Entity:
                 Id: 6bb7f704-5c31-4ab3-b6d1-b6c2c37f8678
                 Name: Skybox
@@ -49,6 +72,27 @@ Hierarchy:
                         Id: 9b7817ea-56da-4671-9614-d2bcd289921a
                         Type: !LightSkybox
                             Skybox: b6575b32-eb03-40e8-9724-d86ade8a3aa7:Skybox
+        -   Folder: null
+            Entity:
+                Id: 8143159b-1031-40f7-a8a7-60931d03ae6d
+                Name: Sphere
+                Components:
+                    f3c94ffe92097a9cdb4e1ee14366f1b3: !TransformComponent
+                        Id: affc9e65-c119-4f99-bd99-5570f55cf9ee
+                        Position: {X: -36.064167, Y: 0.5, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    1e055d16179ca0f036fd98ff0841ec19: !ModelComponent
+                        Id: ccf51ba2-aff0-4472-9166-c41025783efb
+                        Model: f91abbd6-39d0-4637-aacd-14801a1fc646:Sphere
+                        Materials: {}
+                    a3a668ecb01e39cfbe6d0283cbefbae0: !Doprez.Stride.SteamAudio.SteamAudioEmitter,Doprez.Stride.SteamAudio
+                        Id: eb534898-b61a-44db-8c72-efa544c7ed1a
+                        RawFileSource: 82765b75-a664-4883-ac9e-ce9d4f2bda06:Quincas Moreira - Moskito
+                        SampleRate: 44100
+                        FrameSize: 4096
+                        Volume: 1.0
         -   Entity:
                 Id: 83a2ea93-5a5b-4879-97ea-42c92bcba604
                 Name: Directional light
@@ -64,7 +108,7 @@ Hierarchy:
                         Type: !LightDirectional
                             Color: !ColorRgbProvider
                                 Value: {R: 1.0, G: 1.0, B: 1.0}
-                            Shadow: !LightDirectionalShadowMap
+                            Shadow:
                                 Enabled: true
                                 Filter: !LightShadowMapFilterTypePcf
                                     FilterSize: Filter5x5
