@@ -13,5 +13,6 @@
     <PackageReference Include="SteamAudio.NET.Natives" Version="4.6.1" />
     <PackageReference Include="Stride.Core" Version="4.3.0.2507" />
     <PackageReference Include="Stride.Engine" Version="4.3.0.2507" />
+    <PackageReference Include="Stride.Physics" Version="4.3.0.2507" />
   </ItemGroup>
 </Project>
