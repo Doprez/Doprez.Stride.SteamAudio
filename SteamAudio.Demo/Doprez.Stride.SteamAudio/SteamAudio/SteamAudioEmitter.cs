@@ -47,6 +47,17 @@ public class SteamAudioEmitter : EntityComponent
 	/// <summary>Dipole power for directivity (controls sharpness of the pattern). Only used when EnableDirectivity is true.</summary>
 	public float DirectivityDipolePower { get; set; } = 2.0f;
 
+	// --- HRTF Customization ---
+
+	/// <summary>HRTF interpolation type. Bilinear is smoother, Nearest is faster.</summary>
+	public HrtfInterpolation HrtfInterpolation { get; set; } = HrtfInterpolation.Bilinear;
+
+	/// <summary>Path to a custom SOFA HRTF file. Leave empty to use the built-in default HRTF.</summary>
+	public string SofaFilePath { get; set; } = "";
+
+	/// <summary>HRTF normalization type. RMS normalizes the HRTF for consistent volume.</summary>
+	public HrtfNormType HrtfNormType { get; set; } = HrtfNormType.None;
+
 	/// <summary>Occlusion type: Raycast (single ray, fast) or Volumetric (multiple samples, softer transitions). Volumetric is required for accurate transmission computation.</summary>
 	public OcclusionType OcclusionType { get; set; } = OcclusionType.Volumetric;
 
@@ -74,6 +85,17 @@ public class SteamAudioEmitter : EntityComponent
 
 	/// <summary>Enable reflections (early reflections + late reverb computed from scene geometry).</summary>
 	public bool EnableReflections { get; set; } = false;
+
+	/// <summary>Ambisonics order for reflection encoding (0=mono, 1=first-order 4ch, 2=second-order 9ch).</summary>
+	public int ReflectionAmbisonicsOrder { get; set; } = 1;
+
+	// --- Pathing options ---
+
+	/// <summary>Enable pathing simulation (sound travels around obstacles via shortest viable paths). Requires probe batches.</summary>
+	public bool EnablePathing { get; set; } = false;
+
+	/// <summary>Ambisonics order for pathing spatialization.</summary>
+	public int PathingOrder { get; set; } = 1;
 
 	// --- Runtime state (not serialized) ---
 
@@ -126,9 +148,23 @@ public class SteamAudioEmitter : EntityComponent
 	[DataMemberIgnore]
 	public ReflectionEffect IplReflectionEffect;
 	[DataMemberIgnore]
-	public AudioBuffer IplReflectionOutputBuffer;
+	public AudioBuffer IplReflectionOutputBuffer; // ambisonics buffer: (order+1)^2 channels
 	[DataMemberIgnore]
 	public bool HasReflectionEffect;
+
+	// Ambisonics decode for reflections
+	[DataMemberIgnore]
+	public AmbisonicsBinauralEffect IplAmbisonicsBinauralEffect;
+	[DataMemberIgnore]
+	public AudioBuffer IplReflectionStereoBuffer; // stereo decoded from ambisonics
+
+	// Pathing effect resources
+	[DataMemberIgnore]
+	public PathEffect IplPathEffect;
+	[DataMemberIgnore]
+	public AudioBuffer IplPathOutputBuffer;
+	[DataMemberIgnore]
+	public bool HasPathEffect;
 
 	// Cached simulation outputs (updated each frame by the processor)
 	[DataMemberIgnore]
@@ -162,6 +198,8 @@ public class SteamAudioEmitter : EntityComponent
 		var flags = SimulationFlags.Direct;
 		if (EnableReflections)
 			flags |= SimulationFlags.Reflections;
+		if (EnablePathing)
+			flags |= SimulationFlags.Pathing;
 
 		var sourceSettings = new SourceSettings
 		{
@@ -178,12 +216,18 @@ public class SteamAudioEmitter : EntityComponent
 		SourceAdd(IplSource, simulator);
 		IsSimulatorSource = true;
 
-		Console.WriteLine($"[SteamAudio] Source created for '{Entity?.Name}': Occ={EnableOcclusion} Trans={EnableTransmission}");
+		Console.WriteLine($"[SteamAudio] Source created for '{Entity?.Name}': Occ={EnableOcclusion} Trans={EnableTransmission} Refl={EnableReflections} Path={EnablePathing}");
 
 		// Create reflection effect if reflections are enabled
 		if (EnableReflections)
 		{
 			CreateReflectionEffect(iplContext);
+		}
+
+		// Create pathing effect if pathing is enabled
+		if (EnablePathing)
+		{
+			CreatePathEffect(iplContext);
 		}
 	}
 
@@ -281,19 +325,66 @@ public class SteamAudioEmitter : EntityComponent
 
 	private void CreateReflectionEffect(Context iplContext)
 	{
-		// Ambisonics channels for reflections: (order+1)^2 with order=1 ? 4 channels
-		int numChannels = 2; // Stereo output for now
+		int order = ReflectionAmbisonicsOrder;
+		int numAmbisonicsChannels = (order + 1) * (order + 1); // order 1 → 4 channels
 
 		var reflectionSettings = new ReflectionEffectSettings
 		{
 			Type = ReflectionEffectType.Convolution,
 			IrSize = (int)(IplAudioSettings.SamplingRate * 1.0f), // 1 second IR
-			NumChannels = numChannels,
+			NumChannels = numAmbisonicsChannels,
 		};
 
-		ReflectionEffectCreate(iplContext, in IplAudioSettings, in reflectionSettings, out IplReflectionEffect);
-		AudioBufferAllocate(iplContext, numChannels, IplAudioSettings.FrameSize, ref IplReflectionOutputBuffer);
+		var refErr = ReflectionEffectCreate(iplContext, in IplAudioSettings, in reflectionSettings, out IplReflectionEffect);
+		if (refErr != IPL.Error.Success)
+		{
+			Console.WriteLine($"[SteamAudio] ReflectionEffectCreate failed: {refErr}");
+			return;
+		}
+
+		// Ambisonics intermediate buffer for reflection IR output
+		AudioBufferAllocate(iplContext, numAmbisonicsChannels, IplAudioSettings.FrameSize, ref IplReflectionOutputBuffer);
+
+		// Ambisonics → binaural stereo decoder
+		var ambiDecodeSettings = new AmbisonicsBinauralEffectSettings
+		{
+			Hrtf = IplHrtf,
+			MaxOrder = order,
+		};
+
+		var ambiErr = AmbisonicsBinauralEffectCreate(iplContext, in IplAudioSettings, in ambiDecodeSettings, out IplAmbisonicsBinauralEffect);
+		if (ambiErr != IPL.Error.Success)
+		{
+			Console.WriteLine($"[SteamAudio] AmbisonicsBinauralEffectCreate failed: {ambiErr}");
+			return;
+		}
+
+		// Stereo output buffer for decoded reflections
+		AudioBufferAllocate(iplContext, 2, IplAudioSettings.FrameSize, ref IplReflectionStereoBuffer);
+
 		HasReflectionEffect = true;
+		Console.WriteLine($"[SteamAudio] Reflection pipeline created: order={order} ambiChannels={numAmbisonicsChannels}");
+	}
+
+	private void CreatePathEffect(Context iplContext)
+	{
+		var pathSettings = new PathEffectSettings
+		{
+			MaxOrder = PathingOrder,
+			Spatialize = true,
+			Hrtf = IplHrtf,
+		};
+
+		var pathErr = PathEffectCreate(iplContext, in IplAudioSettings, in pathSettings, out IplPathEffect);
+		if (pathErr != IPL.Error.Success)
+		{
+			Console.WriteLine($"[SteamAudio] PathEffectCreate failed: {pathErr}");
+			return;
+		}
+
+		AudioBufferAllocate(iplContext, 2, IplAudioSettings.FrameSize, ref IplPathOutputBuffer);
+		HasPathEffect = true;
+		Console.WriteLine($"[SteamAudio] PathEffect created: order={PathingOrder}");
 	}
 
 	private void PrepareSteamAudio(Context iplContext)
@@ -305,14 +396,28 @@ public class SteamAudioEmitter : EntityComponent
 		};
 
 		// HRTF
+		bool useSofa = !string.IsNullOrEmpty(SofaFilePath);
 		var hrtfSettings = new HrtfSettings
 		{
-			Type = HrtfType.Default,
+			Type = useSofa ? HrtfType.Sofa : HrtfType.Default,
+			SofaFileName = useSofa ? SofaFilePath : null,
 			Volume = Volume,
-			NormType = HrtfNormType.None
+			NormType = HrtfNormType,
 		};
 
-		HrtfCreate(iplContext, in IplAudioSettings, in hrtfSettings, out IplHrtf);
+		var hrtfErr = HrtfCreate(iplContext, in IplAudioSettings, in hrtfSettings, out IplHrtf);
+		if (hrtfErr != IPL.Error.Success)
+		{
+			Console.WriteLine($"[SteamAudio] HrtfCreate failed: {hrtfErr} (SOFA={useSofa}, path={SofaFilePath})");
+			// Fall back to default HRTF
+			hrtfSettings.Type = HrtfType.Default;
+			hrtfSettings.SofaFileName = null;
+			HrtfCreate(iplContext, in IplAudioSettings, in hrtfSettings, out IplHrtf);
+		}
+		else if (useSofa)
+		{
+			Console.WriteLine($"[SteamAudio] SOFA HRTF loaded: {SofaFilePath}");
+		}
 
 		// Binaural Effect
 		var binauralEffectSettings = new BinauralEffectSettings
@@ -359,7 +464,16 @@ public class SteamAudioEmitter : EntityComponent
 		{
 			ReflectionEffectRelease(ref IplReflectionEffect);
 			AudioBufferFree(iplContext, ref IplReflectionOutputBuffer);
+			AmbisonicsBinauralEffectRelease(ref IplAmbisonicsBinauralEffect);
+			AudioBufferFree(iplContext, ref IplReflectionStereoBuffer);
 			HasReflectionEffect = false;
+		}
+
+		if (HasPathEffect)
+		{
+			PathEffectRelease(ref IplPathEffect);
+			AudioBufferFree(iplContext, ref IplPathOutputBuffer);
+			HasPathEffect = false;
 		}
 	}
 
@@ -382,7 +496,17 @@ public class SteamAudioEmitter : EntityComponent
 		{
 			ReflectionEffectRelease(ref IplReflectionEffect);
 			AudioBufferFree(iplContext, ref IplReflectionOutputBuffer);
+			AmbisonicsBinauralEffectRelease(ref IplAmbisonicsBinauralEffect);
+			AudioBufferFree(iplContext, ref IplReflectionStereoBuffer);
 			HasReflectionEffect = false;
+		}
+
+		// Release pathing resources
+		if (HasPathEffect)
+		{
+			PathEffectRelease(ref IplPathEffect);
+			AudioBufferFree(iplContext, ref IplPathOutputBuffer);
+			HasPathEffect = false;
 		}
 
 		// Release Steam Audio resources

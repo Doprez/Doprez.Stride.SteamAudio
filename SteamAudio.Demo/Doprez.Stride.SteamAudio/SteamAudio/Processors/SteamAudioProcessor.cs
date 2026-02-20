@@ -67,6 +67,36 @@ public unsafe class SteamAudioProcessor : EntityProcessor<SteamAudioEmitter>
 			Listener = _listenerProcessor?.Listener;
 		}
 
+		// Detect scene transitions: if the scene was previously built but the scene processor
+		// was removed or its scene destroyed (e.g., scene switch), tear down the simulator
+		// so it can be rebuilt with the new scene's geometry.
+		if (_sceneBuilt)
+		{
+			_sceneProcessor ??= Services.GetService<SteamAudioSceneProcessor>();
+			if (_sceneProcessor == null || !_sceneProcessor.IsSceneReady)
+			{
+				Console.WriteLine("[SteamAudio] Scene transition detected — releasing simulator for rebuild.");
+
+				// Remove all emitters from the old simulator
+				foreach (var emitter in Emitters)
+				{
+					if (emitter.IsSimulatorSource && SimulatorInitialized)
+					{
+						emitter.RemoveFromSimulator(_iplSimulator, _iplContext);
+					}
+				}
+
+				if (SimulatorInitialized)
+				{
+					SimulatorRelease(ref _iplSimulator);
+					SimulatorInitialized = false;
+				}
+
+				_sceneBuilt = false;
+				_sceneProcessor = null;
+			}
+		}
+
 		// Lazily resolve scene processor and build scene + simulator
 		if (!_sceneBuilt)
 		{
@@ -242,8 +272,9 @@ public unsafe class SteamAudioProcessor : EntityProcessor<SteamAudioEmitter>
 		};
 
 		var sharedFlags = SimulationFlags.Direct;
-		// Only run reflections if any emitter wants them
+		// Only run reflections/pathing if any emitter wants them
 		bool anyReflections = false;
+		bool anyPathing = false;
 		foreach (var emitter in Emitters)
 		{
 			if (!emitter.IsSimulatorSource)
@@ -255,12 +286,19 @@ public unsafe class SteamAudioProcessor : EntityProcessor<SteamAudioEmitter>
 				flags |= SimulationFlags.Reflections;
 				anyReflections = true;
 			}
+			if (emitter.EnablePathing)
+			{
+				flags |= SimulationFlags.Pathing;
+				anyPathing = true;
+			}
 
 			emitter.SetSimulationInputs(flags);
 		}
 
 		if (anyReflections)
 			sharedFlags |= SimulationFlags.Reflections;
+		if (anyPathing)
+			sharedFlags |= SimulationFlags.Pathing;
 
 		SimulatorSetSharedInputs(_iplSimulator, sharedFlags, in sharedInputs);
 
@@ -272,6 +310,11 @@ public unsafe class SteamAudioProcessor : EntityProcessor<SteamAudioEmitter>
 			SimulatorRunReflections(_iplSimulator);
 		}
 
+		if (anyPathing)
+		{
+			SimulatorRunPathing(_iplSimulator);
+		}
+
 		// Read outputs for each emitter
 		foreach (var emitter in Emitters)
 		{
@@ -281,6 +324,8 @@ public unsafe class SteamAudioProcessor : EntityProcessor<SteamAudioEmitter>
 			var outputFlags = SimulationFlags.Direct;
 			if (emitter.EnableReflections)
 				outputFlags |= SimulationFlags.Reflections;
+			if (emitter.EnablePathing)
+				outputFlags |= SimulationFlags.Pathing;
 
 			SourceGetOutputs(emitter.IplSource, outputFlags, out emitter.CachedSimulationOutputs);
 		}
@@ -354,7 +399,7 @@ public unsafe class SteamAudioProcessor : EntityProcessor<SteamAudioEmitter>
 		{
 			Hrtf = emitter.IplHrtf,
 			Direction = iplDir,
-			Interpolation = IPL.HrtfInterpolation.Nearest,
+			Interpolation = emitter.HrtfInterpolation,
 			SpatialBlend = 1f,
 		};
 
@@ -417,10 +462,41 @@ public unsafe class SteamAudioProcessor : EntityProcessor<SteamAudioEmitter>
 		if (emitter.HasReflectionEffect && emitter.IsSimulatorSource)
 		{
 			var reflectionParams = emitter.CachedSimulationOutputs.Reflections;
-			IPL.ReflectionEffectApply(emitter.IplReflectionEffect, ref reflectionParams, ref emitter.IplOutputBuffer, ref emitter.IplReflectionOutputBuffer, default);
 
-			// Mix reflections into the output buffer
-			MixAudioBuffers(emitter.IplReflectionOutputBuffer, ref emitter.IplOutputBuffer);
+			// Step 1: Convolve mono input with reflection IR → ambisonics buffer
+			IPL.ReflectionEffectApply(emitter.IplReflectionEffect, ref reflectionParams, ref emitter.IplInputBuffer, ref emitter.IplReflectionOutputBuffer, default);
+
+			// Step 2: Decode ambisonics → binaural stereo
+			var ambiParams = new IPL.AmbisonicsBinauralEffectParams
+			{
+				Hrtf = emitter.IplHrtf,
+				Order = emitter.ReflectionAmbisonicsOrder,
+			};
+			IPL.AmbisonicsBinauralEffectApply(emitter.IplAmbisonicsBinauralEffect, ref ambiParams, ref emitter.IplReflectionOutputBuffer, ref emitter.IplReflectionStereoBuffer);
+
+			// Step 3: Mix decoded stereo reflections into the output buffer
+			MixAudioBuffers(emitter.IplReflectionStereoBuffer, ref emitter.IplOutputBuffer);
+		}
+
+		// Apply pathing effect if enabled and available
+		if (emitter.HasPathEffect && emitter.IsSimulatorSource)
+		{
+			var pathParams = emitter.CachedSimulationOutputs.Pathing;
+			pathParams.Order = emitter.PathingOrder;
+			pathParams.Binaural = true;
+			pathParams.Hrtf = emitter.IplHrtf;
+			pathParams.Listener = new IPL.CoordinateSpace3
+			{
+				Origin = listenerPosition.ToIPL(),
+				Ahead = Listener!.Entity.Transform.WorldMatrix.Forward.ToIPL(),
+				Up = listenerUp.ToIPL(),
+				Right = Listener.Entity.Transform.WorldMatrix.Right.ToIPL(),
+			};
+
+			IPL.PathEffectApply(emitter.IplPathEffect, ref pathParams, ref emitter.IplInputBuffer, ref emitter.IplPathOutputBuffer);
+
+			// Mix pathing into the output buffer
+			MixAudioBuffers(emitter.IplPathOutputBuffer, ref emitter.IplOutputBuffer);
 		}
 
 		IPL.AudioBufferInterleave(_iplContext, in emitter.IplOutputBuffer, in Unsafe.AsRef<float>((void*)emitter.InterlacingBuffer));

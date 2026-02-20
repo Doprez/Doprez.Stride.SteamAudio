@@ -180,10 +180,39 @@ public class SteamAudioDebugOverlay : SyncScript
 						string fallbackTag = isFallback ? " [FALLBACK]" : "";
 						_debugText.Print($"  Transmission: ({direct.Transmission[0]:F4}, {direct.Transmission[1]:F4}, {direct.Transmission[2]:F4}){fallbackTag}", new Int2(ScreenX, y), transColor);
 						y += lineHeight;
+
+						// Air absorption
+						if (emitter.EnableAirAbsorption)
+						{
+							_debugText.Print($"  AirAbsorb:    ({direct.AirAbsorption[0]:F4}, {direct.AirAbsorption[1]:F4}, {direct.AirAbsorption[2]:F4})", new Int2(ScreenX, y), yellow);
+							y += lineHeight;
+						}
 					}
 
 					_debugText.Print($"  DirectSimFlags: Occ={emitter.EnableOcclusion} Trans={emitter.EnableTransmission} Air={emitter.EnableAirAbsorption}", new Int2(ScreenX, y));
 					y += lineHeight;
+
+					// Reflections status
+					if (emitter.EnableReflections)
+					{
+						var reflColor = emitter.HasReflectionEffect ? green : red;
+						_debugText.Print($"  Reflections:  order={emitter.ReflectionAmbisonicsOrder} ch={(emitter.ReflectionAmbisonicsOrder+1)*(emitter.ReflectionAmbisonicsOrder+1)} active={emitter.HasReflectionEffect}", new Int2(ScreenX, y), reflColor);
+						y += lineHeight;
+					}
+
+					// Pathing status
+					if (emitter.EnablePathing)
+					{
+						var pathColor = emitter.HasPathEffect ? green : red;
+						_debugText.Print($"  Pathing:      order={emitter.PathingOrder} active={emitter.HasPathEffect}", new Int2(ScreenX, y), pathColor);
+						y += lineHeight;
+					}
+
+					// HRTF info
+					string hrtfType = string.IsNullOrEmpty(emitter.SofaFilePath) ? "Default" : "SOFA";
+					_debugText.Print($"  HRTF: {hrtfType}  Interp={emitter.HrtfInterpolation}  Norm={emitter.HrtfNormType}", new Int2(ScreenX, y));
+					y += lineHeight;
+
 					_debugText.Print($"  EffectFlags: {emitter.GetDirectEffectFlags()}  OccType={emitter.OcclusionType} TransRays={emitter.NumTransmissionRays}", new Int2(ScreenX, y));
 					y += lineHeight;
 					// Show raw DirectFlags int and raw output flags for diagnosing transmission issue
