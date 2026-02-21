@@ -15,4 +15,7 @@ OutputGroupDirectories: {}
 ExplicitFolders: []
 Bundles: []
 TemplateFolders: []
-RootAssets: []
+RootAssets:
+    - a2b3c4d5-e6f7-4890-abcd-ca0ed1a10001:CathedralScene
+    - b3c4d5e6-f7a8-4901-bcde-c011d0100001:CorridorScene
+    - c4d5e6f7-a8b9-4012-cdef-00e0f1e10001:OpenFieldScene

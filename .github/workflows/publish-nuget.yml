@@ -1,0 +1,47 @@
+name: Publish to NuGet
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Generate version from commit hash
+        id: version
+        run: |
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          # Count commits for a monotonically increasing patch number
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          VERSION="0.0.1.${COMMIT_COUNT}+${COMMIT_HASH}"
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Generated version: $VERSION"
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: SteamAudio.Demo/Doprez.Stride.SteamAudio
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore /p:Version=${{ steps.version.outputs.VERSION }}
+        working-directory: SteamAudio.Demo/Doprez.Stride.SteamAudio
+
+      - name: Pack
+        run: dotnet pack --configuration Release --no-build /p:Version=${{ steps.version.outputs.VERSION }} --output ./nupkg
+        working-directory: SteamAudio.Demo/Doprez.Stride.SteamAudio
+
+      - name: Push to NuGet
+        run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        working-directory: SteamAudio.Demo/Doprez.Stride.SteamAudio

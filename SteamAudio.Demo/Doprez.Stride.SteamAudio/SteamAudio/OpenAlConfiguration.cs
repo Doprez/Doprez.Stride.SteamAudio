@@ -3,14 +3,11 @@
 namespace Doprez.Stride.SteamAudio;
 public unsafe class OpenAlConfiguration : IDisposable
 {
-	public const int NumBuffers = 2;
-
 	public bool SoftwareAL = true;
 
 	public readonly  Device* AlAudioDevice;
 	public readonly  Context* AlAudioContext;
 	public readonly  AL Al;
-	public uint sourceId;
 	
 	private readonly ALContext AlContext;
 	
@@ -41,13 +38,28 @@ public unsafe class OpenAlConfiguration : IDisposable
 		CheckALErrors();
 	}
 
-	public void Initialize()
+	public uint CreateSource(int numBuffers, out uint[] bufferIds)
 	{
-		uint* alBuffers = stackalloc uint[NumBuffers];
+		bufferIds = new uint[numBuffers];
+		fixed (uint* ptr = bufferIds)
+		{
+			Al.GenBuffers(numBuffers, ptr);
+		}
+		var sourceId = Al.GenSource();
+		CheckALErrors();
+		return sourceId;
+	}
 
-		Al.GenBuffers(NumBuffers, alBuffers);
-
-		sourceId = Al.GenSource();
+	public void DestroySource(uint sourceId, uint[] bufferIds)
+	{
+		Al.DeleteSource(sourceId);
+		if (bufferIds != null && bufferIds.Length > 0)
+		{
+			fixed (uint* ptr = bufferIds)
+			{
+				Al.DeleteBuffers(bufferIds.Length, ptr);
+			}
+		}
 	}
 
 	private void CheckALErrors()

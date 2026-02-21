@@ -1,0 +1,453 @@
+!SceneAsset
+Id: a2b3c4d5-e6f7-4890-abcd-ca0ed1a10001
+SerializedVersion: {Stride: 3.1.0.1}
+Tags: []
+ChildrenIds: []
+Offset: {X: 0.0, Y: 0.0, Z: 0.0}
+Hierarchy:
+    RootParts:
+        - ref!! ca000001-0001-0001-0001-000000000001
+        - ref!! ca000002-0002-0002-0002-000000000002
+        - ref!! ca000003-0003-0003-0003-000000000003
+        - ref!! ca000004-0004-0004-0004-000000000004
+        - ref!! ca000005-0005-0005-0005-000000000005
+        - ref!! ca000006-0006-0006-0006-000000000006
+        - ref!! ca000010-0010-0010-0010-000000000010
+        - ref!! ca000011-0011-0011-0011-000000000011
+        - ref!! ca000012-0012-0012-0012-000000000012
+        - ref!! ca000013-0013-0013-0013-000000000013
+        - ref!! ca000014-0014-0014-0014-000000000014
+        - ref!! ca000015-0015-0015-0015-000000000015
+        - ref!! ca000016-0016-0016-0016-000000000016
+    Parts:
+        -   Entity:
+                Id: ca000001-0001-0001-0001-000000000001
+                Name: Camera
+                Components:
+                    717f498b3c6319ba79988c57161e2904: !TransformComponent
+                        Id: ca100001-0001-0001-0001-000000000001
+                        Position: {X: 0.0, Y: 2.0, Z: -1.0133486}
+                        Rotation: {X: 0.0, Y: 1.0, Z: 0.0, W: -4.371139E-08}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    549635e91570563271b30cf9abd8d8cf: !CameraComponent
+                        Id: ca100001-0002-0002-0002-000000000001
+                        Name: null
+                        Projection: Perspective
+                        Slot: aff5123e-1c04-43b8-bb3c-fb80aeac134e
+                    03fefb3e1a12f8c2d8cb314aa899c307: !SteamAudio.Demo.BasicCameraController,SteamAudio.Demo
+                        Id: ca100001-0003-0003-0003-000000000001
+                        Gamepad: false
+                        KeyboardMovementSpeed: {X: 5.0, Y: 5.0, Z: 5.0}
+                        TouchMovementSpeed: {X: 0.7, Y: 0.7, Z: 0.3}
+                        SpeedFactor: 5.0
+                        KeyboardRotationSpeed: {X: 3.0, Y: 3.0}
+                        MouseRotationSpeed: {X: 1.0, Y: 1.0}
+                        TouchRotationSpeed: {X: 1.0, Y: 0.7}
+                    e4a83c0b69b7ebc1600f83d81187b53e: !Doprez.Stride.SteamAudio.SteamAudioListener,Doprez.Stride.SteamAudio
+                        Id: ca100001-0004-0004-0004-000000000001
+                    a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6: !Doprez.Stride.SteamAudio.SteamAudioDebugOverlay,Doprez.Stride.SteamAudio
+                        Id: ca100001-0005-0005-0005-000000000001
+                        Enabled: true
+                        ScreenX: 10
+                        ScreenY: 10
+        -   Entity:
+                Id: ca000002-0002-0002-0002-000000000002
+                Name: Directional light
+                Components:
+                    99fcc6cb50e71ab492f5e3e63a6fb14b: !TransformComponent
+                        Id: ca100002-0001-0001-0001-000000000002
+                        Position: {X: 0.0, Y: 12.0, Z: 0.0}
+                        Rotation: {X: 1.131334E-08, Y: -0.9659258, Z: -0.25881904, W: -4.222196E-08}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    f906687bfd6e92e67d1e51d1a99b0073: !LightComponent
+                        Id: ca100002-0002-0002-0002-000000000002
+                        Type: !LightDirectional
+                            Color: !ColorRgbProvider
+                                Value: {R: 1.0, G: 0.9, B: 0.8}
+                            Shadow:
+                                Enabled: true
+                                Filter: !LightShadowMapFilterTypePcf
+                                    FilterSize: Filter5x5
+                                Size: Large
+                                DepthRange: {}
+                                PartitionMode: !LightDirectionalShadowMap.PartitionLogarithmic {}
+                                ComputeTransmittance: false
+                                BiasParameters: {}
+                        Intensity: 15.0
+        -   Entity:
+                Id: ca000003-0003-0003-0003-000000000003
+                Name: Skybox
+                Components:
+                    f96b729b0d43a27f30f40d342b244851: !TransformComponent
+                        Id: ca100003-0001-0001-0001-000000000003
+                        Position: {X: 0.0, Y: 2.0, Z: -2.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    a0a1b7e8ec4f07322eccb4ac70cc18e6: !BackgroundComponent
+                        Id: ca100003-0002-0002-0002-000000000003
+                        Texture: c07c8766-0998-4b27-b014-5ad2f172b1ed:Skybox texture
+                    63cadad31dc3edd0e4a3f35bd97cc49d: !LightComponent
+                        Id: ca100003-0003-0003-0003-000000000003
+                        Type: !LightSkybox
+                            Skybox: b6575b32-eb03-40e8-9724-d86ade8a3aa7:Skybox
+        -   Entity:
+                Id: ca000004-0004-0004-0004-000000000004
+                Name: Ground
+                Components:
+                    a629e924d9a6e89359545dd73becb941: !TransformComponent
+                        Id: ca100004-0001-0001-0001-000000000004
+                        Position: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 2.0, Y: 1.0, Z: 2.0}
+                        Children: {}
+                    36c3a5b58c1237a4eeefa220056ac4a2: !ModelComponent
+                        Id: ca100004-0002-0002-0002-000000000004
+                        Model: 163e7759-f4d1-4a70-88fb-eeec5784e08c:Ground
+                        Materials: {}
+                    b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6: !StaticColliderComponent
+                        Id: ca100004-0003-0003-0003-000000000004
+                        CanSleep: false
+                        Restitution: 0.0
+                        Friction: 0.5
+                        RollingFriction: 0.0
+                        CcdMotionThreshold: 0.0
+                        CcdSweptSphereRadius: 0.0
+                        IsTrigger: false
+                        AlwaysUpdateNaviMeshCache: false
+                        ColliderShapes:
+                            9dd8f5eae4370917a46217d79087f415: !BoxColliderShapeDesc
+                                Is2D: false
+                                Size: {X: 42.0, Y: 0.2, Z: 22.0}
+                                LocalOffset: {X: 0.0, Y: -0.1, Z: 0.0}
+                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                    d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6: !Doprez.Stride.SteamAudio.SteamAudioMaterial,Doprez.Stride.SteamAudio
+                        Id: ca100004-0004-0004-0004-000000000004
+                        AbsorptionLow: 0.02
+                        AbsorptionMid: 0.02
+                        AbsorptionHigh: 0.03
+                        Scattering: 0.3
+                        TransmissionLow: 0.01
+                        TransmissionMid: 0.01
+                        TransmissionHigh: 0.01
+        -   Entity:
+                Id: ca000005-0005-0005-0005-000000000005
+                Name: SteamAudio Manager
+                Components:
+                    f3c94ffe92097a9cdb4e1ee14366f1b3: !TransformComponent
+                        Id: ca100005-0001-0001-0001-000000000005
+                        Position: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6: !Doprez.Stride.SteamAudio.SteamAudioScene,Doprez.Stride.SteamAudio
+                        Id: ca100005-0002-0002-0002-000000000005
+                        GeometrySource: PhysicsColliders
+                        MaxOcclusionSamples: 64
+                        NumRays: 8192
+                        NumBounces: 8
+                        NumDiffuseSamples: 64
+                        ReflectionDuration: 2.0
+                        AmbisonicsOrder: 2
+                        MaxSources: 32
+                        NumThreads: 0
+                        RebuildOnChange: false
+                        IrradianceMinDistance: 1.0
+        -   Entity:
+                Id: ca000006-0006-0006-0006-000000000006
+                Name: Cathedral Emitter
+                Components:
+                    f3c94ffe92097a9cdb4e1ee14366f1b3: !TransformComponent
+                        Id: ca100006-0001-0001-0001-000000000006
+                        Position: {X: 0.0, Y: 2.0, Z: 8.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    1e055d16179ca0f036fd98ff0841ec19: !ModelComponent
+                        Id: ca100006-0002-0002-0002-000000000006
+                        Model: f91abbd6-39d0-4637-aacd-14801a1fc646:Sphere
+                        Materials: {}
+                    a3a668ecb01e39cfbe6d0283cbefbae0: !Doprez.Stride.SteamAudio.SteamAudioEmitter,Doprez.Stride.SteamAudio
+                        Id: ca100006-0003-0003-0003-000000000006
+                        RawFileSource: 82765b75-a664-4883-ac9e-ce9d4f2bda06:Quincas Moreira - Moskito
+                        SampleRate: 44100
+                        FrameSize: 4096
+                        Volume: 1.0
+                        EnableOcclusion: true
+                        EnableTransmission: true
+                        TransmissionType: FrequencyDependent
+                        EnableAirAbsorption: true
+                        EnableDirectivity: false
+                        DirectivityDipoleWeight: 0.5
+                        DirectivityDipolePower: 2.0
+                        HrtfInterpolation: Bilinear
+                        SofaFilePath: 
+                        HrtfNormType: None
+                        OcclusionType: Volumetric
+                        NumOcclusionSamples: 64
+                        OcclusionRadius: 1.0
+                        NumTransmissionRays: 16
+                        FallbackTransmissionLow: 0.1
+                        FallbackTransmissionMid: 0.05
+                        FallbackTransmissionHigh: 0.03
+                        EnableReflections: true
+                        ReflectionAmbisonicsOrder: 2
+                        EnablePathing: false
+                        PathingOrder: 1
+        -   Entity:
+                Id: ca000010-0010-0010-0010-000000000010
+                Name: Cathedral Ceiling
+                Components:
+                    f3c94ffe92097a9cdb4e1ee14366f1b3: !TransformComponent
+                        Id: ca100010-0001-0001-0001-000000000010
+                        Position: {X: 0.0, Y: 15.0, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 40.2, Y: 0.2, Z: 20.2}
+                        Children: {}
+                    1e055d16179ca0f036fd98ff0841ec19: !ModelComponent
+                        Id: ca100010-0002-0002-0002-000000000010
+                        Model: b1a2c3d4-e5f6-7890-abcd-111111111111:Wall
+                        Materials: {}
+                    b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6: !StaticColliderComponent
+                        Id: ca100010-0003-0003-0003-000000000010
+                        CanSleep: false
+                        Restitution: 0.0
+                        Friction: 0.5
+                        RollingFriction: 0.0
+                        CcdMotionThreshold: 0.0
+                        CcdSweptSphereRadius: 0.0
+                        IsTrigger: false
+                        AlwaysUpdateNaviMeshCache: false
+                        ColliderShapes:
+                            b0f06c2e7d86caf48376639b74bc09d0: !BoxColliderShapeDesc
+                                Is2D: false
+                                Size: {X: 1.0, Y: 1.0, Z: 1.0}
+                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                    d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6: !Doprez.Stride.SteamAudio.SteamAudioMaterial,Doprez.Stride.SteamAudio
+                        Id: ca100010-0004-0004-0004-000000000010
+                        AbsorptionLow: 0.02
+                        AbsorptionMid: 0.03
+                        AbsorptionHigh: 0.04
+                        Scattering: 0.3
+                        TransmissionLow: 0.005
+                        TransmissionMid: 0.003
+                        TransmissionHigh: 0.002
+        -   Entity:
+                Id: ca000011-0011-0011-0011-000000000011
+                Name: Cathedral Left Wall
+                Components:
+                    f3c94ffe92097a9cdb4e1ee14366f1b3: !TransformComponent
+                        Id: ca100011-0001-0001-0001-000000000011
+                        Position: {X: -20.1, Y: 7.5, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 0.2, Y: 15.0, Z: 20.2}
+                        Children: {}
+                    1e055d16179ca0f036fd98ff0841ec19: !ModelComponent
+                        Id: ca100011-0002-0002-0002-000000000011
+                        Model: b1a2c3d4-e5f6-7890-abcd-111111111111:Wall
+                        Materials: {}
+                    b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6: !StaticColliderComponent
+                        Id: ca100011-0003-0003-0003-000000000011
+                        CanSleep: false
+                        Restitution: 0.0
+                        Friction: 0.5
+                        RollingFriction: 0.0
+                        CcdMotionThreshold: 0.0
+                        CcdSweptSphereRadius: 0.0
+                        IsTrigger: false
+                        AlwaysUpdateNaviMeshCache: false
+                        ColliderShapes:
+                            379d8489b1196913ec73a2c485c82361: !BoxColliderShapeDesc
+                                Is2D: false
+                                Size: {X: 1.0, Y: 1.0, Z: 1.0}
+                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                    d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6: !Doprez.Stride.SteamAudio.SteamAudioMaterial,Doprez.Stride.SteamAudio
+                        Id: ca100011-0004-0004-0004-000000000011
+                        AbsorptionLow: 0.02
+                        AbsorptionMid: 0.03
+                        AbsorptionHigh: 0.04
+                        Scattering: 0.3
+                        TransmissionLow: 0.005
+                        TransmissionMid: 0.003
+                        TransmissionHigh: 0.002
+        -   Entity:
+                Id: ca000012-0012-0012-0012-000000000012
+                Name: Cathedral Right Wall
+                Components:
+                    f3c94ffe92097a9cdb4e1ee14366f1b3: !TransformComponent
+                        Id: ca100012-0001-0001-0001-000000000012
+                        Position: {X: 20.1, Y: 7.5, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 0.2, Y: 15.0, Z: 20.2}
+                        Children: {}
+                    1e055d16179ca0f036fd98ff0841ec19: !ModelComponent
+                        Id: ca100012-0002-0002-0002-000000000012
+                        Model: b1a2c3d4-e5f6-7890-abcd-111111111111:Wall
+                        Materials: {}
+                    b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6: !StaticColliderComponent
+                        Id: ca100012-0003-0003-0003-000000000012
+                        CanSleep: false
+                        Restitution: 0.0
+                        Friction: 0.5
+                        RollingFriction: 0.0
+                        CcdMotionThreshold: 0.0
+                        CcdSweptSphereRadius: 0.0
+                        IsTrigger: false
+                        AlwaysUpdateNaviMeshCache: false
+                        ColliderShapes:
+                            44c541b34c490b234ed68fda77a3f0c5: !BoxColliderShapeDesc
+                                Is2D: false
+                                Size: {X: 1.0, Y: 1.0, Z: 1.0}
+                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                    d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6: !Doprez.Stride.SteamAudio.SteamAudioMaterial,Doprez.Stride.SteamAudio
+                        Id: ca100012-0004-0004-0004-000000000012
+                        AbsorptionLow: 0.02
+                        AbsorptionMid: 0.03
+                        AbsorptionHigh: 0.04
+                        Scattering: 0.3
+                        TransmissionLow: 0.005
+                        TransmissionMid: 0.003
+                        TransmissionHigh: 0.002
+        -   Entity:
+                Id: ca000013-0013-0013-0013-000000000013
+                Name: Cathedral Back Wall
+                Components:
+                    f3c94ffe92097a9cdb4e1ee14366f1b3: !TransformComponent
+                        Id: ca100013-0001-0001-0001-000000000013
+                        Position: {X: 0.0, Y: 7.5, Z: -10.1}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 40.2, Y: 15.0, Z: 0.2}
+                        Children: {}
+                    1e055d16179ca0f036fd98ff0841ec19: !ModelComponent
+                        Id: ca100013-0002-0002-0002-000000000013
+                        Model: b1a2c3d4-e5f6-7890-abcd-111111111111:Wall
+                        Materials: {}
+                    b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6: !StaticColliderComponent
+                        Id: ca100013-0003-0003-0003-000000000013
+                        CanSleep: false
+                        Restitution: 0.0
+                        Friction: 0.5
+                        RollingFriction: 0.0
+                        CcdMotionThreshold: 0.0
+                        CcdSweptSphereRadius: 0.0
+                        IsTrigger: false
+                        AlwaysUpdateNaviMeshCache: false
+                        ColliderShapes:
+                            957ef5a3e673f13eed087040c26cdc35: !BoxColliderShapeDesc
+                                Is2D: false
+                                Size: {X: 1.0, Y: 1.0, Z: 1.0}
+                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                    d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6: !Doprez.Stride.SteamAudio.SteamAudioMaterial,Doprez.Stride.SteamAudio
+                        Id: ca100013-0004-0004-0004-000000000013
+                        AbsorptionLow: 0.02
+                        AbsorptionMid: 0.03
+                        AbsorptionHigh: 0.04
+                        Scattering: 0.3
+                        TransmissionLow: 0.005
+                        TransmissionMid: 0.003
+                        TransmissionHigh: 0.002
+        -   Entity:
+                Id: ca000014-0014-0014-0014-000000000014
+                Name: Cathedral Front Wall
+                Components:
+                    f3c94ffe92097a9cdb4e1ee14366f1b3: !TransformComponent
+                        Id: ca100014-0001-0001-0001-000000000014
+                        Position: {X: 0.0, Y: 7.5, Z: 10.1}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 40.2, Y: 15.0, Z: 0.2}
+                        Children: {}
+                    1e055d16179ca0f036fd98ff0841ec19: !ModelComponent
+                        Id: ca100014-0002-0002-0002-000000000014
+                        Model: b1a2c3d4-e5f6-7890-abcd-111111111111:Wall
+                        Materials: {}
+                    b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6: !StaticColliderComponent
+                        Id: ca100014-0003-0003-0003-000000000014
+                        CanSleep: false
+                        Restitution: 0.0
+                        Friction: 0.5
+                        RollingFriction: 0.0
+                        CcdMotionThreshold: 0.0
+                        CcdSweptSphereRadius: 0.0
+                        IsTrigger: false
+                        AlwaysUpdateNaviMeshCache: false
+                        ColliderShapes:
+                            56c50b09b07093b4a5f88fe5847b8b6b: !BoxColliderShapeDesc
+                                Is2D: false
+                                Size: {X: 1.0, Y: 1.0, Z: 1.0}
+                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                    d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6: !Doprez.Stride.SteamAudio.SteamAudioMaterial,Doprez.Stride.SteamAudio
+                        Id: ca100014-0004-0004-0004-000000000014
+                        AbsorptionLow: 0.02
+                        AbsorptionMid: 0.03
+                        AbsorptionHigh: 0.04
+                        Scattering: 0.3
+                        TransmissionLow: 0.005
+                        TransmissionMid: 0.003
+                        TransmissionHigh: 0.002
+        -   Entity:
+                Id: ca000015-0015-0015-0015-000000000015
+                Name: Pillar Left Near
+                Components:
+                    f3c94ffe92097a9cdb4e1ee14366f1b3: !TransformComponent
+                        Id: ca100015-0001-0001-0001-000000000015
+                        Position: {X: -8.0, Y: 5.0, Z: -5.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.5, Y: 10.0, Z: 1.5}
+                        Children: {}
+                    1e055d16179ca0f036fd98ff0841ec19: !ModelComponent
+                        Id: ca100015-0002-0002-0002-000000000015
+                        Model: b1a2c3d4-e5f6-7890-abcd-111111111111:Wall
+                        Materials: {}
+                    b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6: !StaticColliderComponent
+                        Id: ca100015-0003-0003-0003-000000000015
+                        CanSleep: false
+                        Restitution: 0.0
+                        Friction: 0.5
+                        RollingFriction: 0.0
+                        CcdMotionThreshold: 0.0
+                        CcdSweptSphereRadius: 0.0
+                        IsTrigger: false
+                        AlwaysUpdateNaviMeshCache: false
+                        ColliderShapes:
+                            834e74c90a2971363472baf3832c0907: !BoxColliderShapeDesc
+                                Is2D: false
+                                Size: {X: 1.0, Y: 1.0, Z: 1.0}
+                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+        -   Entity:
+                Id: ca000016-0016-0016-0016-000000000016
+                Name: Pillar Right Near
+                Components:
+                    f3c94ffe92097a9cdb4e1ee14366f1b3: !TransformComponent
+                        Id: ca100016-0001-0001-0001-000000000016
+                        Position: {X: 8.0, Y: 5.0, Z: -5.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.5, Y: 10.0, Z: 1.5}
+                        Children: {}
+                    1e055d16179ca0f036fd98ff0841ec19: !ModelComponent
+                        Id: ca100016-0002-0002-0002-000000000016
+                        Model: b1a2c3d4-e5f6-7890-abcd-111111111111:Wall
+                        Materials: {}
+                    b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6: !StaticColliderComponent
+                        Id: ca100016-0003-0003-0003-000000000016
+                        CanSleep: false
+                        Restitution: 0.0
+                        Friction: 0.5
+                        RollingFriction: 0.0
+                        CcdMotionThreshold: 0.0
+                        CcdSweptSphereRadius: 0.0
+                        IsTrigger: false
+                        AlwaysUpdateNaviMeshCache: false
+                        ColliderShapes:
+                            3f3946637f304fde883b851c0f166e63: !BoxColliderShapeDesc
+                                Is2D: false
+                                Size: {X: 1.0, Y: 1.0, Z: 1.0}
+                                LocalOffset: {X: 0.0, Y: 0.0, Z: 0.0}
+                                LocalRotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
