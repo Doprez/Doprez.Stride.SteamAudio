@@ -4,7 +4,25 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <!-- NuGet package metadata -->
+    <PackageId>Doprez.Stride.SteamAudio</PackageId>
+    <Authors>Doprez</Authors>
+    <Description>Steam Audio integration for the Stride game engine. Provides spatial audio, HRTF, occlusion, and reverb via Valve's Steam Audio.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Doprez/Doprez.Stride.SteamAudio</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Doprez/Doprez.Stride.SteamAudio</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>stride;gamedev;steam-audio;spatial-audio;hrtf;3d-audio</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Version is set via CI; fallback for local builds -->
+    <Version>0.0.1-local</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Silk.NET.OpenAL" Version="2.23.0" />
     <PackageReference Include="Silk.NET.OpenAL.Extensions.EXT" Version="2.23.0" />
