@@ -429,8 +429,16 @@ public class SteamAudioEmitter : EntityComponent
 
 		// Audio Buffers
 		// Input is mono, output is stereo.
-		AudioBufferAllocate(iplContext, 1, IplAudioSettings.FrameSize, ref IplInputBuffer);
-		AudioBufferAllocate(iplContext, 2, IplAudioSettings.FrameSize, ref IplOutputBuffer);
+		var inBufErr = AudioBufferAllocate(iplContext, 1, IplAudioSettings.FrameSize, ref IplInputBuffer);
+		if (inBufErr != IPL.Error.Success)
+		{
+			throw new InvalidOperationException($"[SteamAudio] AudioBufferAllocate (input) failed: {inBufErr}. Check that phonon.dll version matches the SteamAudio.NET wrapper.");
+		}
+		var outBufErr = AudioBufferAllocate(iplContext, 2, IplAudioSettings.FrameSize, ref IplOutputBuffer);
+		if (outBufErr != IPL.Error.Success)
+		{
+			throw new InvalidOperationException($"[SteamAudio] AudioBufferAllocate (output) failed: {outBufErr}. Check that phonon.dll version matches the SteamAudio.NET wrapper.");
+		}
 
 		IplDistanceAttenuationModel = new DistanceAttenuationModel
 		{ 

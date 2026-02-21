@@ -53,8 +53,11 @@ public unsafe class SteamAudioProcessor : EntityProcessor<SteamAudioEmitter>
 		var ctxErr = ContextCreate(in contextSettings, out _iplContext);
 		if (ctxErr != IPL.Error.Success)
 		{
-			DiagLastError = $"ContextCreate failed: {ctxErr}";
+			DiagLastError = $"ContextCreate failed: {ctxErr}. " +
+				$"This usually means the native phonon.dll version does not match the SteamAudio.NET wrapper. " +
+				$"Ensure phonon.dll matches the expected SDK version.";
 			Console.WriteLine($"[SteamAudio] {DiagLastError}");
+			throw new InvalidOperationException(DiagLastError);
 		}
 	}
 
